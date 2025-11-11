@@ -1,5 +1,29 @@
 // Servicio de API para The Movie Database (TMDB)
 
+// Función para probar la autenticación con TMDB
+const testAuthentication = async () => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json'
+            }
+        };
+        
+        const response = await fetch('https://api.themoviedb.org/3/authentication', options);
+        
+        if (!response.ok) {
+            throw new Error(`Error en la autenticación: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error al probar la autenticación:', error);
+        throw error;
+    }
+};
+
 // Función para buscar películas por título
 const searchMovies = async (query) => {
     try {

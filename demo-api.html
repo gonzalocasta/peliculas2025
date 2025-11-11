@@ -54,26 +54,33 @@
     <h1>Demo de Integración con TMDB API</h1>
     
     <div class="demo-section">
-        <h2>1. Verificar Configuración</h2>
+        <h2>1. Probar Autenticación</h2>
+        <p>Verifica que tu clave de API funciona correctamente con el endpoint de autenticación de TMDb.</p>
+        <button onclick="testAuth()">Probar Autenticación</button>
+        <div id="auth-result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>2. Verificar Configuración</h2>
         <button onclick="testConfig()">Probar Configuración</button>
         <div id="config-result"></div>
     </div>
 
     <div class="demo-section">
-        <h2>2. Buscar Películas</h2>
+        <h2>3. Buscar Películas</h2>
         <input type="text" id="searchQuery" placeholder="Ej: Titanic" value="Titanic">
         <button onclick="testSearch()">Buscar</button>
         <div id="search-result"></div>
     </div>
 
     <div class="demo-section">
-        <h2>3. Películas Populares</h2>
+        <h2>4. Películas Populares</h2>
         <button onclick="testPopular()">Obtener Populares</button>
         <div id="popular-result"></div>
     </div>
 
     <div class="demo-section">
-        <h2>4. Detalles de Película</h2>
+        <h2>5. Detalles de Película</h2>
         <input type="text" id="movieId" placeholder="ID de película (ej: 597)" value="550">
         <button onclick="testDetails()">Obtener Detalles</button>
         <div id="details-result"></div>
@@ -82,6 +89,31 @@
     <script src="config.js"></script>
     <script src="api-service.js"></script>
     <script>
+        async function testAuth() {
+            const result = document.getElementById('auth-result');
+            result.innerHTML = '<p>Probando autenticación...</p>';
+            
+            try {
+                const response = await testAuthentication();
+                result.innerHTML = `
+                    <h3>✓ Autenticación exitosa</h3>
+                    <p><strong>Status Code:</strong> ${response.status_code}</p>
+                    <p><strong>Mensaje:</strong> ${response.status_message}</p>
+                    <p style="color: green;">La clave de API funciona correctamente.</p>
+                    <details>
+                        <summary>Ver respuesta completa</summary>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <p style="color: red;">✗ Error en la autenticación</p>
+                    <p>${error.message}</p>
+                    <p>Verifica que tu clave de API sea correcta.</p>
+                `;
+            }
+        }
+
         function testConfig() {
             const config = getAPIConfig();
             const headers = getAuthHeaders();

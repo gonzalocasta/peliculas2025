@@ -137,6 +137,63 @@ const enriquecerConTMDB = async (peliculaLocal) => {
 
 ## Verificación de Autenticación
 
+### Probar la conexión con TMDb API
+
+Antes de empezar a trabajar con la API, es recomendable verificar que tu clave de API funciona correctamente. Puedes hacer esto probando el endpoint de autenticación:
+
+```javascript
+// Verificar que la autenticación está configurada correctamente
+const probarAutenticacion = async () => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json'
+            }
+        };
+        
+        const response = await fetch('https://api.themoviedb.org/3/authentication', options);
+        const data = await response.json();
+        
+        console.log('Estado de autenticación:', data);
+        console.log('✓ Conexión exitosa con TMDb API');
+        return data;
+    } catch (error) {
+        console.error('Error al conectar con TMDb:', error);
+        throw error;
+    }
+};
+
+// Ejecutar prueba
+probarAutenticacion()
+    .then(response => console.log(response))
+    .catch(err => console.error(err));
+```
+
+Este ejemplo muestra cómo hacer una solicitud GET utilizando `fetch()`, que es un método nativo de JavaScript para manejar solicitudes HTTP. La URL de la solicitud apunta al endpoint de autenticación de TMDb. En el `headers`, se incluye el encabezado `accept: 'application/json'` para especificar el formato de la respuesta que se espera.
+
+Puedes probar este fragmento de código en la consola de tu navegador o integrarlo en tu proyecto para verificar que tu clave de API funciona correctamente.
+
+### Verificación avanzada con función del proyecto
+
+```javascript
+// Usar la función incluida en api-service.js
+const verificarConexion = async () => {
+    try {
+        const resultado = await testAuthentication();
+        console.log('Autenticación exitosa:', resultado);
+        console.log('Status:', resultado.status_message);
+    } catch (error) {
+        console.error('Error de autenticación:', error);
+    }
+};
+
+// Ejecutar
+verificarConexion();
+```
+
+### Verificación de configuración completa
+
 ```javascript
 // Verificar que la autenticación está configurada correctamente
 const verificarAutenticacion = () => {
