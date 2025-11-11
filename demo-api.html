@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo TMDB API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .movie-card {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 150px;
+        }
+        .movie-card img {
+            width: 100%;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Demo de Integración con TMDB API</h1>
+    
+    <div class="demo-section">
+        <h2>1. Verificar Configuración</h2>
+        <button onclick="testConfig()">Probar Configuración</button>
+        <div id="config-result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>2. Buscar Películas</h2>
+        <input type="text" id="searchQuery" placeholder="Ej: Titanic" value="Titanic">
+        <button onclick="testSearch()">Buscar</button>
+        <div id="search-result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>3. Películas Populares</h2>
+        <button onclick="testPopular()">Obtener Populares</button>
+        <div id="popular-result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>4. Detalles de Película</h2>
+        <input type="text" id="movieId" placeholder="ID de película (ej: 597)" value="550">
+        <button onclick="testDetails()">Obtener Detalles</button>
+        <div id="details-result"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="api-service.js"></script>
+    <script>
+        function testConfig() {
+            const config = getAPIConfig();
+            const headers = getAuthHeaders();
+            const result = document.getElementById('config-result');
+            result.innerHTML = `
+                <h3>Configuración:</h3>
+                <p><strong>API Key:</strong> ${config.apiKey.substring(0, 10)}... (${config.apiKey.length} caracteres)</p>
+                <p><strong>Base URL:</strong> ${config.baseURL}</p>
+                <p><strong>Header Authorization:</strong> ${headers.Authorization.substring(0, 20)}...</p>
+                <p style="color: green;">✓ Configuración correcta</p>
+            `;
+        }
+
+        async function testSearch() {
+            const query = document.getElementById('searchQuery').value;
+            const result = document.getElementById('search-result');
+            result.innerHTML = '<p>Buscando...</p>';
+            
+            try {
+                const movies = await searchMovies(query);
+                result.innerHTML = `
+                    <h3>Resultados (${movies.length} películas):</h3>
+                    ${movies.slice(0, 5).map(movie => `
+                        <div class="movie-card">
+                            <img src="${getAPIConfig().imageBaseURL}${movie.poster_path}" 
+                                 onerror="this.src='files/placeholder.png'">
+                            <p><strong>${movie.title}</strong></p>
+                            <p>⭐ ${movie.vote_average}/10</p>
+                        </div>
+                    `).join('')}
+                `;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testPopular() {
+            const result = document.getElementById('popular-result');
+            result.innerHTML = '<p>Cargando películas populares...</p>';
+            
+            try {
+                const movies = await getPopularMovies();
+                result.innerHTML = `
+                    <h3>Películas Populares (${movies.length}):</h3>
+                    ${movies.slice(0, 5).map(movie => `
+                        <div class="movie-card">
+                            <img src="${getAPIConfig().imageBaseURL}${movie.poster_path}" 
+                                 onerror="this.src='files/placeholder.png'">
+                            <p><strong>${movie.title}</strong></p>
+                            <p>⭐ ${movie.vote_average}/10</p>
+                        </div>
+                    `).join('')}
+                `;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testDetails() {
+            const movieId = document.getElementById('movieId').value;
+            const result = document.getElementById('details-result');
+            result.innerHTML = '<p>Cargando detalles...</p>';
+            
+            try {
+                const movie = await getMovieDetails(movieId);
+                result.innerHTML = `
+                    <h3>${movie.title}</h3>
+                    <img src="${getAPIConfig().imageBaseURL}${movie.poster_path}" 
+                         style="width: 200px; border-radius: 4px;"
+                         onerror="this.src='files/placeholder.png'">
+                    <p><strong>Título original:</strong> ${movie.original_title}</p>
+                    <p><strong>Fecha:</strong> ${movie.release_date}</p>
+                    <p><strong>Valoración:</strong> ⭐ ${movie.vote_average}/10</p>
+                    <p><strong>Descripción:</strong> ${movie.overview}</p>
+                `;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
